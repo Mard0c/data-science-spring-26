@@ -1,13 +1,14 @@
 # import module
+from pathlib import Path
+
 import xmltodict
 
 
 def main():
-    process_one_hospital("input/xml_2024/510841096-772822000-2024-xml.xml")
-    # paths = [str(p) for p in Path("input_files").rglob("*.txt")]
+    # in the terminal, use ctrl-c to stop this from reading every file.
+    retrieve_target_data("input", "*xml.xml")
 
 
-# "input/xml_2024/510841096-772822000-2024-xml.xml"
 def process_one_hospital(path):
 
     # open the file as a string
@@ -64,6 +65,16 @@ def select_hospital_data(xml: str) -> dict:
     except KeyError:
         print("ERROR: could not find 'Fallzahlen'")
         result["Fallzahlen"] = {}
+
+    return result
+
+
+def retrieve_target_data(source_folder, source_file_pattern):
+    # get paths
+    paths = [str(p) for p in Path(source_folder).rglob(source_file_pattern)]
+
+    # retrieve desired data from xml (for now just first 10 for dev)
+    result = [process_one_hospital(path) for path in paths[0:10]]
 
     return result
 
