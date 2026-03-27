@@ -4,6 +4,7 @@ import xmltodict
 
 def main():
     process_one_hospital("input/xml_2024/510841096-772822000-2024-xml.xml")
+    # paths = [str(p) for p in Path("input_files").rglob("*.txt")]
 
 
 # "input/xml_2024/510841096-772822000-2024-xml.xml"
@@ -17,6 +18,7 @@ def process_one_hospital(path):
 
     # (temporary) print data
     print(selected_hospital_data)
+    return selected_hospital_data
 
 
 def select_hospital_data(xml: str) -> dict:
@@ -67,5 +69,4 @@ def select_hospital_data(xml: str) -> dict:
 
 
 if __name__ == "__main__":
-    # paths = [str(p) for p in Path("input_files").rglob("*.txt")]
     main()
