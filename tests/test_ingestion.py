@@ -1,9 +1,11 @@
-from src import main
+from src import hospitalxml
 
 
 # run tests with: uv run -m pytest
 def test_process_one_hospital():
-    assert main.process_one_hospital("./tests/sample/one-location-hospital.xml") == {
+    assert hospitalxml.process_one_hospital(
+        "./tests/sample/one-location-hospital.xml"
+    ) == {
         "Datum": "2025-11-06",
         "Postleitzahl": "88046",
         "Anzahl_Betten": "20",
