@@ -1,3 +1,4 @@
+from datetime import datetime
 from pathlib import Path
 
 import xmltodict
@@ -8,7 +9,7 @@ def retrieve_target_data(source_folder, source_file_pattern):
     paths = [str(p) for p in Path(source_folder).rglob(source_file_pattern)]
 
     # retrieve desired data from xml (for now just first 10 for dev)
-    result = [process_one_hospital(path) for path in paths[0:10]]
+    result = [process_one_hospital(path) for path in paths[0:10]]  # [0:10]
 
     return result
 
@@ -17,7 +18,8 @@ def process_one_hospital(path):
 
     # open the file as a string
     xml_content = open(path, "r").read()
-
+    with open(".problem_output.xml", "w") as file:
+        file.write(xml_content)
     # select relevant data
     selected_hospital_data = select_hospital_data(xml_content)
 
@@ -35,7 +37,9 @@ def select_hospital_data(xml: str) -> dict:
 
     # Einleitung/Datensatz/Datum
     try:
-        result["Datum"] = hospital_data["Einleitung"]["Datensatz"]["Datum"]
+        result["Datum"] = datetime.strptime(
+            hospital_data["Einleitung"]["Datensatz"]["Datum"], "%Y-%m-%d"
+        ).date()
     except KeyError:
         print("ERROR: could not find 'Datum'")
         result["Datum"] = None
@@ -45,27 +49,43 @@ def select_hospital_data(xml: str) -> dict:
     # It's either Krankenhaus/Mehrere_Standorte
     #          or Krankenhaus/Ein_Standorte
     try:
-        result["Postleitzahl"] = hospital_data["Krankenhaus"]["Ein_Standort"][
-            "Krankenhauskontaktdaten"
-        ]["Kontakt_Adresse"]["Postleitzahl"]
-    except KeyError:
-        print("ERROR: could not find 'Postleitzahl'")
+        if "Ein_Standort" in hospital_data["Krankenhaus"]:
+            result["Postleitzahl"] = int(
+                hospital_data["Krankenhaus"]["Ein_Standort"]["Krankenhauskontaktdaten"][
+                    "Kontakt_Zugang"
+                ]["Postleitzahl"]
+            )
+        elif "Mehrere_Standorte" in hospital_data["Krankenhaus"]:
+            result["Postleitzahl"] = int(
+                hospital_data["Krankenhaus"]["Mehrere_Standorte"][
+                    "Krankenhauskontaktdaten"
+                ]["Kontakt_Zugang"]["Postleitzahl"]
+            )
+        else:
+            hospital_data["Krankenhaus"]["Kontaktdaten"]
+            result["Postleitzahl"] = int(
+                hospital_data["Krankenhaus"]["Kontaktdaten"]["Kontakt_Zugang"][
+                    "Postleitzahl"
+                ]
+            )
+    except KeyError as error:
+        print(f"ERROR: could not find Postleitzahl: {error}")
 
-        if "Mehrere_Standorte" in hospital_data["Krankenhaus"]:
-            print("UNHANDLED EDGE CASE: has multiple locations")
+        with open(f"./failed/{result['Datum']}.xml", "w") as file:
+            file.write(xml)
 
         result["Postleitzahl"] = None
-
     # Anzahl_Betten
     try:
-        result["Anzahl_Betten"] = hospital_data["Anzahl_Betten"]
+        result["Anzahl_Betten"] = int(hospital_data["Anzahl_Betten"])
     except KeyError:
         print("ERROR: could not find 'Anzahl_Betten'")
         result["Anzahl_Betten"] = None
 
     # Fallzahlen (all child elements)
     try:
-        result["Fallzahlen"] = hospital_data["Fallzahlen"]
+        data = hospital_data["Fallzahlen"]
+        result["Fallzahlen"] = {key: int(value) for key, value in data.items()}
     except KeyError:
         print("ERROR: could not find 'Fallzahlen'")
         result["Fallzahlen"] = {}
