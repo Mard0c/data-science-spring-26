@@ -1,0 +1,63 @@
+import pandas as pd
+import xml.etree.ElementTree as ET
+
+# PLZ first 2 digits → Bundesland 
+PLZ_TO_BUNDESLAND = {
+    '01': 'Schleswig-Holstein', '02': 'Schleswig-Holstein', '20': 'Hamburg', '21': 'Hamburg', 
+    '22': 'Hamburg', '23': 'Niedersachsen', '24': 'Niedersachsen', '25': 'Niedersachsen',
+    '26': 'Niedersachsen', '27': 'Niedersachsen', '28': 'Niedersachsen', '31': 'Niedersachsen',
+    '32': 'Niedersachsen', '33': 'Niedersachsen', '34': 'Niedersachsen', '37': 'Niedersachsen',
+    '38': 'Niedersachsen', '40': 'Nordrhein-Westfalen', '41': 'Nordrhein-Westfalen',
+    '42': 'Nordrhein-Westfalen', '44': 'Nordrhein-Westfalen', '45': 'Nordrhein-Westfalen',
+    '46': 'Nordrhein-Westfalen', '47': 'Nordrhein-Westfalen', '48': 'Nordrhein-Westfalen',
+    '49': 'Nordrhein-Westfalen', '50': 'Nordrhein-Westfalen', '51': 'Nordrhein-Westfalen',
+    '52': 'Nordrhein-Westfalen', '53': 'Nordrhein-Westfalen', '54': 'Nordrhein-Westfalen',
+    '55': 'Nordrhein-Westfalen', '56': 'Nordrhein-Westfalen', '57': 'Nordrhein-Westfalen',
+    '58': 'Nordrhein-Westfalen', '59': 'Nordrhein-Westfalen', '60': 'Hessen', '63': 'Hessen',
+    '64': 'Hessen', '65': 'Hessen', '66': 'Saarland', '67': 'Rheinland-Pfalz', '68': 'Rheinland-Pfalz',
+    '69': 'Baden-Württemberg', '70': 'Baden-Württemberg', '71': 'Baden-Württemberg',
+    '72': 'Baden-Württemberg', '73': 'Baden-Württemberg', '74': 'Baden-Württemberg',
+    '75': 'Baden-Württemberg', '76': 'Baden-Württemberg', '77': 'Baden-Württemberg',
+    '78': 'Baden-Württemberg', '79': 'Baden-Württemberg', '80': 'Bayern', '81': 'Bayern',
+    '82': 'Bayern', '83': 'Bayern', '84': 'Bayern', '85': 'Bayern', '86': 'Bayern', '87': 'Bayern',
+    '88': 'Bayern', '89': 'Bayern', '90': 'Bayern', '91': 'Bayern', '92': 'Bayern', '93': 'Bayern',
+    '94': 'Bayern', '95': 'Bayern', '10': 'Berlin', '11': 'Berlin', '12': 'Berlin', '13': 'Berlin',
+    '14': 'Berlin', '15': 'Brandenburg', '16': 'Brandenburg', '17': 'Brandenburg', '18': 'Brandenburg',
+    '19': 'Brandenburg', '99': 'Sachsen', '98': 'Thüringen', '03': 'Sachsen-Anhalt', '04': 'Sachsen-Anhalt',
+    '05': 'Sachsen-Anhalt', '06': 'Sachsen-Anhalt', '39': 'Sachsen-Anhalt'
+}
+
+def group_hospitals_by_bundesland(xml_file_path):
+    tree = ET.parse(xml_file_path)
+    hospitals = []
+    
+    for standort in tree.findall('.//Ein_Standort'):
+        # Get PLZ IMMEDIATELY
+        plz_elem = standort.find('.//Kontakt_Zugang/Postleitzahl')
+        if plz_elem is None:
+            plz_elem = standort.find('.//Kontakt_Adresse/Postleitzahl')
+        if plz_elem is None: 
+            continue
+            
+        plz = plz_elem.text or ''
+        
+        # IMMEDIATELY extract first 2 digits → Bundesland (THE KEY LINE)
+        bundesland = PLZ_TO_BUNDESLAND.get(plz[:2], 'Unbekannt') if len(plz) >= 2 else 'Unbekannt'
+        
+        hospitals.append({
+            'bundesland': bundesland,
+            'betten': float(tree.find('.//Anzahl_Betten').text or 0),
+            'vollstationaere': float(tree.find('.//Vollstationaere_Fallzahl').text or 0),
+            'teilstationaere': float(tree.find('.//Teilstationaere_Fallzahl').text or 0),
+        })
+    
+    df = pd.DataFrame(hospitals)
+    
+    # GROUP ALL HOSPITALS PER BUNDESLAND → SUM VALUES
+    result = df.groupby('bundesland').sum(numeric_only=True).round(0)
+    return result.sort_values('betten', ascending=False)
+
+# RUN - 1 line gives your final table
+bundesland_table = group_hospitals_by_bundesland('paste.txt')
+print(bundesland_table)
+bundesland_table.to_csv('bundesland_totals.csv')
