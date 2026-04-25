@@ -9,7 +9,7 @@ def retrieve_target_data(source_folder, source_file_pattern):
     paths = [str(p) for p in Path(source_folder).rglob(source_file_pattern)]
 
     # retrieve desired data from xml (for now just first 10 for dev)
-    result = [process_one_hospital(path) for path in paths[0:10]]  # [0:10]
+    result = [process_one_hospital(path) for path in paths]  # [0:10]
 
     return result
 

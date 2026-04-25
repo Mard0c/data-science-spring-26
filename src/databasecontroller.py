@@ -16,10 +16,28 @@ def insert_data(data):
         create_postcode_to_bundesland_table(db, "plz_bundesland.csv")
 
     if not table_exists(db, main_table):
-        db.sql(f"CREATE TABLE {main_table} AS SELECT * FROM data_view")
+        db.sql(f"""
+                    CREATE TABLE {main_table} AS
+                    SELECT
+                        main.*,
+                        geo.Bundesland
+                    FROM data_view main
+                    LEFT JOIN {plz_bundesland_table} geo
+                      ON geo.Plz = main.Postleitzahl
+                     AND lower(trim(geo.Ort)) = lower(trim(main.Ort))
+                """)
     else:
         # db.sql("TRUNCATE TABLE sample")
-        db.sql(f"INSERT INTO {main_table} SELECT * FROM data_view")
+        db.sql(f"""
+                    INSERT INTO {main_table}
+                    SELECT
+                        main.*,
+                        geo.Bundesland
+                    FROM data_view main
+                    LEFT JOIN {plz_bundesland_table} geo
+                      ON geo.Plz = main.Postleitzahl
+                     AND lower(trim(geo.Ort)) = lower(trim(main.Ort))
+                """)
 
     db.close()
 
@@ -57,3 +75,18 @@ def show_db_contents(table: str):
         db.table(table).show()
     except duckdb.Error as error:
         print(f"couldn't open '{table}': {error}")
+
+
+def debug_bundesland():
+    db = duckdb.connect("database.db")
+    try:
+        db.sql("""
+        SELECT Datum, Ort, Postleitzahl, Bundesland
+        FROM dataset
+        WHERE Bundesland IS NULL;""").show()  # show()
+
+    except duckdb.Error as error:
+        print(f"couldn't open 'dataset': {error}")
+
+
+# check if year has alreaddy been inserted
