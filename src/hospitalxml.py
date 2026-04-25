@@ -18,8 +18,8 @@ def process_one_hospital(path):
 
     # open the file as a string
     xml_content = open(path, "r").read()
-    with open(".problem_output.xml", "w") as file:
-        file.write(xml_content)
+    # with open(".problem_output.xml", "w") as file:
+    #     file.write(xml_content)
     # select relevant data
     selected_hospital_data = select_hospital_data(xml_content)
 
@@ -34,6 +34,8 @@ def select_hospital_data(xml: str) -> dict:
 
     # collect target data in this dictionary
     result = {}
+
+    # ADD HOSPITAL IK + NAME
 
     # Einleitung/Datensatz/Datum
     try:
@@ -50,24 +52,50 @@ def select_hospital_data(xml: str) -> dict:
     #          or Krankenhaus/Ein_Standorte
     try:
         if "Ein_Standort" in hospital_data["Krankenhaus"]:
+            result["IK"] = hospital_data["Krankenhaus"]["Ein_Standort"][
+                "Krankenhauskontaktdaten"
+            ]["IK"]
+            result["Ort"] = hospital_data["Krankenhaus"]["Ein_Standort"][
+                "Krankenhauskontaktdaten"
+            ]["Kontakt_Zugang"]["Ort"]
             result["Postleitzahl"] = int(
                 hospital_data["Krankenhaus"]["Ein_Standort"]["Krankenhauskontaktdaten"][
                     "Kontakt_Zugang"
                 ]["Postleitzahl"]
             )
         elif "Mehrere_Standorte" in hospital_data["Krankenhaus"]:
+            result["IK"] = hospital_data["Krankenhaus"]["Mehrere_Standorte"][
+                "Krankenhauskontaktdaten"
+            ]["IK"]
+            result["Ort"] = hospital_data["Krankenhaus"]["Mehrere_Standorte"][
+                "Krankenhauskontaktdaten"
+            ]["Kontakt_Zugang"]["Ort"]
             result["Postleitzahl"] = int(
                 hospital_data["Krankenhaus"]["Mehrere_Standorte"][
                     "Krankenhauskontaktdaten"
                 ]["Kontakt_Zugang"]["Postleitzahl"]
             )
+        elif "Krankenhauskontaktdaten" in hospital_data["Krankenhaus"]:
+            result["IK"] = hospital_data["Krankenhaus"]["Krankenhauskontaktdaten"]["IK"]
+            result["Ort"] = hospital_data["Krankenhaus"]["Krankenhauskontaktdaten"][
+                "Kontakt_Zugang"
+            ]["Ort"]
+            result["Postleitzahl"] = int(
+                hospital_data["Krankenhaus"]["Krankenhauskontaktdaten"][
+                    "Kontakt_Zugang"
+                ]["Postleitzahl"]
+            )
         else:
-            hospital_data["Krankenhaus"]["Kontaktdaten"]
+            result["IK"] = hospital_data["Krankenhaus"]["Kontaktdaten"]["IK"]
+            result["Ort"] = hospital_data["Krankenhaus"]["Kontaktdaten"][
+                "Kontakt_Zugang"
+            ]["Ort"]
             result["Postleitzahl"] = int(
                 hospital_data["Krankenhaus"]["Kontaktdaten"]["Kontakt_Zugang"][
                     "Postleitzahl"
                 ]
             )
+        # convert postcode to bundesland from csv
     except KeyError as error:
         print(f"ERROR: could not find Postleitzahl: {error}")
 
