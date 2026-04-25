@@ -1,6 +1,6 @@
 import argparse
 
-from src import databasecontroller, hospitalxml
+from src import databasecontroller, hospitalxml, population
 
 # uv run python -m src.main
 
@@ -25,13 +25,15 @@ def get_arguments() -> argparse.Namespace:
 
 
 def main():
-    # arguments = get_arguments()
+    arguments = get_arguments()
     # if arguments.year == "2020" or arguments.year == "2018":
     #     print("dataset not available")
     #     return
     # add_one_year(arguments.path, int(arguments.year), arguments.pattern)
-    # get_all(2015, 2025, arguments.path, arguments.pattern)
+    get_all(2024, 2025, arguments.path, arguments.pattern)
     databasecontroller.show_db_contents("dataset")
+    population.create_population_table()
+    population.check()
 
 
 def get_all(start, end, path, pattern):
