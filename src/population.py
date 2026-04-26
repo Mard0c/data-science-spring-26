@@ -61,16 +61,28 @@ def check():
     #     WHERE Bundesland IS NULL;
     #     """).show()
     db.sql("""
+        WITH
+        a AS (
+        SELECT DISTINCT Bundesland, lower(trim(Bundesland)) AS k
+        FROM plz_ort_bundesland
+        WHERE Bundesland IS NOT NULL
+        ),
+        b AS (
+        SELECT DISTINCT Bundesland, lower(trim(Bundesland)) AS k
+        FROM populations
+        WHERE Bundesland IS NOT NULL
+        )
         SELECT
-          COALESCE(a.Bundesland, b.Bundesland) AS Bundesland_key,
-          a.Bundesland AS bundesland_in_plz,
-          b.Bundesland AS bundesland_in_pop
-        FROM plz_ort_bundesland a
-        FULL OUTER JOIN populations b
-          ON a.Bundesland = b.Bundesland
-        WHERE a.Bundesland IS NULL
-           OR b.Bundesland IS NULL
-           OR a.Bundesland IS DISTINCT FROM b.Bundesland
-        ORDER BY 1;
+        COALESCE(a.k, b.k) AS bundesland_norm_key,
+        a.Bundesland AS bundesland_in_plz,
+        b.Bundesland AS bundesland_in_pop,
+        CASE
+            WHEN a.k IS NULL THEN 'missing_in_plz_ort_bundesland'
+            WHEN b.k IS NULL THEN 'missing_in_populations'
+        END AS issue
+        FROM a
+        FULL OUTER JOIN b USING (k)
+        WHERE a.k IS NULL OR b.k IS NULL
+        ORDER BY bundesland_norm_key;
         """).show()
     db.close()

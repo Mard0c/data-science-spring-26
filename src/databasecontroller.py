@@ -8,6 +8,8 @@ def insert_data(data):
 
     # replace with a in memory database first?
     db = duckdb.connect("database.db")
+    tables = [t[0] for t in db.execute("SHOW TABLES").fetchall()]
+    print(tables)
 
     arrow_table = pyarrow.Table.from_pylist(data)
     db.register("data_view", arrow_table)

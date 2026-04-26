@@ -11,6 +11,7 @@ def add_one_year(path, year, pattern):
     # TODO prevent duplicate insertions
     hospital_data = hospitalxml.retrieve_target_data(f"{path}/xml_{year}", pattern)
     databasecontroller.insert_data(hospital_data)
+    databasecontroller.show_db_contents("dataset")
     databasecontroller.debug_bundesland()
 
 
@@ -30,7 +31,7 @@ def main():
     #     print("dataset not available")
     #     return
     # add_one_year(arguments.path, int(arguments.year), arguments.pattern)
-    get_all(2024, 2025, arguments.path, arguments.pattern)
+    get_all(2015, 2025, arguments.path, arguments.pattern)
     databasecontroller.show_db_contents("dataset")
     population.create_population_table()
     population.check()
