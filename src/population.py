@@ -41,29 +41,16 @@ def check():
     db = duckdb.connect("database.db")
     tables = [t[0] for t in db.execute("SHOW TABLES").fetchall()]
     print(tables)
-    db.sql("SELECT * FROM populations LIMIT 20").show()
-    # db.sql("""
-    #     SELECT Bundesland
-    #     FROM populations
-    #     EXCEPT
-    #     SELECT Bundesland
-    #     FROM plz_ort_bundesland;
+    query = db.sql("SELECT * FROM populations LIMIT 0")
+    headers = query.columns
+    print(headers)
+    db.sql("SELECT * FROM populations").show()
 
-    #     SELECT Bundesland
-    #     FROM plz_ort_bundesland
-    #     EXCEPT
-    #     SELECT Bundesland
-    #     FROM populations;
-    #     """).show()
-    # db.sql("""
-    #     SELECT Bundesland, Ort, Plz
-    #     FROM plz_ort_bundesland
-    #     WHERE Bundesland IS NULL;
-    #     """).show()
+    # AI generated:
     db.sql("""
         WITH
         a AS (
-        SELECT DISTINCT Bundesland, lower(trim(Bundesland)) AS k
+        SELECT DISTINCT Bundesland, lower(trim(bundesland)) AS k
         FROM plz_ort_bundesland
         WHERE Bundesland IS NOT NULL
         ),

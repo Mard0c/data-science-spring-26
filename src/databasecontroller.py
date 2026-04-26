@@ -75,6 +75,9 @@ def show_db_contents(table: str):
     db = duckdb.connect("database.db")
     try:
         db.table(table).show()
+        query = db.sql("SELECT * FROM dataset LIMIT 1")
+        # headers = query.columns
+        print(query)
     except duckdb.Error as error:
         print(f"couldn't open '{table}': {error}")
 
