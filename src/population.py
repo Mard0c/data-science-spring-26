@@ -3,7 +3,7 @@ import pandas as pd
 
 
 def create_population_table():
-    path = "cleaned_population_2015-2024.csv"
+    path = "interim_csvs/cleaned_population_2015-2024.csv"
 
     df_wide = pd.read_csv(path, sep=";", header=0)
 
