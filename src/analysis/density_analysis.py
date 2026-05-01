@@ -75,7 +75,9 @@ fig.update_geos(
 )
 
 fig.update_layout(
-    margin={"r": 0, "t": 0, "l": 0, "b": 0},
+    width=560,
+    height=500,
+    margin={"r": 0, "t": 30, "l": 0, "b": 10},
     coloraxis_colorbar=dict(title="Beds per Person"),
 )
 

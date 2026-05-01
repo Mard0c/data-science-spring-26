@@ -3,10 +3,528 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>test</title>
+        <link rel="stylesheet" href="style.css" />
     </head>
+
     <body>
-        <h1>Report</h1>
-        <iframe src="./graph.html" width="800px" height="400px"></iframe>
+        <!-- ======================== COVER PAGE ======================== -->
+        <section class="page cover">
+            <h1 style="font-size: 26pt; margin-bottom: 0.2em">
+                Forecasting Hospital Bed Demand and Capacity in Germany
+            </h1>
+            <p style="font-size: 13pt; color: var(--muted); margin-bottom: 2em">
+                Identifying States for Future Hospital-Site Expansion Based on
+                Projected Supply-Demand Gaps
+            </p>
+            <p>Dorian de Burbure</p>
+            <p>Elisabeth Oelschlägel</p>
+            <p class="muted" style="margin-top: 2em">
+                Course: SE_43 Data Science<br />
+                Instructor: Kristian Rother
+            </p>
+            <p class="muted">CODE University of Applied Sciences</p>
+            <p class="muted">Submission date: 4th May 2026</p>
+        </section>
+
+        <!-- ==================== TABLE OF CONTENTS ===================== -->
+        <section class="page">
+            <div class="toc">
+                <ol>
+                    <li>Background and Problem Statement: Choropleth Map</li>
+                    <li>
+                        Methods
+                        <ul>
+                            <li>2.1 Data sources and preprocessing</li>
+                            <li>2.2 Estimation of bed capacity and demand</li>
+                            <li>2.3 Forecasting approach</li>
+                            <li>2.4 Population-adjusted gap analysis</li>
+                            <li>
+                                2.5 Scope and limitations of the forecast
+                                horizon
+                            </li>
+                        </ul>
+                    </li>
+                    <li>Results</li>
+                    <li>Conclusion and Future Outlook</li>
+                    <li>Reflection on the Programming Process</li>
+                    <li>Bibliography and Data Sources</li>
+                </ol>
+            </div>
+        </section>
+
+        <!-- ========= 1. BACKGROUND AND PROBLEM STATEMENT ============= -->
+        <section class="page pagebreak">
+            <h1>1. Background and Problem Statement</h1>
+            <p>
+                At the outset of this project, an analysis of hospital density
+                across the German federal states revealed a substantial decline
+                in the number of hospitals in recent years. At the same time,
+                healthcare planning has increasingly shifted toward
+                concentrating inpatient bed capacity in fewer, larger hospitals,
+                rather than maintaining a more dispersed hospital structure
+                (Deloitte, 2024).
+            </p>
+
+            <!-- Choropleth Map — Slider Animation -->
+            <iframe
+                class="chart-frame full"
+                title="Choropleth — Beds Density Animation"
+                src="beds_density_animation.html"
+            ></iframe>
+
+            <p>
+                Against this backdrop, the project examines whether projected
+                developments in hospital supply are consistent with this shift
+                in bed capacity and whether the figures align with projected
+                demand across different federal states. By comparing projected
+                inpatient bed demand with projected bed capacity across multiple
+                states, the study aims to identify regions that may face future
+                shortages.
+            </p>
+            <p>
+                The project is guided by the following research question:<br />
+                <strong
+                    >Which German cities should be prioritized for future
+                    hospital-site expansion based on projected inpatient bed
+                    demand relative to projected bed capacity?</strong
+                >
+            </p>
+        </section>
+
+        <!-- ===================== 2. METHODS =========================== -->
+        <section class="page pagebreak">
+            <h1>2. Methods</h1>
+
+            <h2>2.1 Data sources and preprocessing</h2>
+            <p>
+                Hospital-level data were obtained from the German Hospital
+                Quality Report (Krankenhausqualitätsbericht) provided by the
+                Federal Ministry of Health. To analyse regional patterns at the
+                level of the German federal states, hospital records were
+                aggregated annually by Bundesland. For this purpose, a
+                supplementary dataset linking postal codes and geographic areas
+                to the corresponding federal states was used. In the first step,
+                the number of hospitals was summed for each state and year. To
+                account for differences in population size, this value was
+                divided by the annual state population, based on data from the
+                Statistisches Bundesamt. This produced a density measure of
+                hospitals relative to population size.
+            </p>
+            <p class="reminder">
+                [Reminder: specify the final metric exactly, e.g. hospitals per
+                10,000 inhabitants, and confirm that this is the convention
+                commonly used in the hospital science literature. Add source.]
+            </p>
+            <p>
+                To visualize changes over time, the resulting state-level
+                density values were displayed in an animated choropleth map.
+            </p>
+
+            <h2>2.2 Estimation of bed capacity and demand</h2>
+            <p>
+                In a second step, the same aggregation procedure was applied to
+                the number of hospital beds rather than the number of hospitals.
+                Bed capacity was therefore calculated as the annual total number
+                of beds per federal state. To estimate demand, the analysis used
+                the number of inpatient cases or stays. In addition, stationary
+                and partially stationary cases were combined with the average
+                length of stay in order to derive a measure of required bed
+                occupancy over time.
+            </p>
+            <p class="reminder">
+                [Reminder: clarify the exact demand formula. For example,
+                specify whether demand was calculated as cases × average length
+                of stay, and distinguish clearly between inpatient and partially
+                inpatient treatment.]
+            </p>
+            <p class="reminder">
+                [Reminder: insert the source for the average length-of-stay
+                values and the exact values used.]
+            </p>
+
+            <h2>2.3 Forecasting approach</h2>
+            <p>
+                Based on these historical indicators, forecasting models were
+                used to project future developments in both bed supply and bed
+                demand. The aim was to estimate regional trends for the period
+                2025 to 2040. Because the available time series are relatively
+                short, the forecasting approach was intentionally kept simple
+                and interpretable. This is important because limited numbers of
+                observations reduce the reliability of more complex models and
+                constrain predictive performance.
+            </p>
+            <p class="reminder">
+                [Reminder: insert the exact forecasting model used for hospital
+                beds/demand, e.g. linear regression, exponential smoothing,
+                ARIMA, or another method, and briefly justify why it was chosen
+                given the small number of datapoints.]
+            </p>
+            <p>
+                Growth assumptions used in the forecasting process were derived
+                from average national developments in Germany.
+            </p>
+            <p class="reminder">
+                [Reminder: specify exactly which growth rates were used, how
+                they were calculated, and provide the source.]
+            </p>
+            <p>
+                For each state and projected year, the difference between
+                projected bed demand and projected bed capacity was calculated
+                in order to identify potential future shortages or surpluses.
+                These developments were visualized in a set of line graphs, with
+                one graph for each of the 16 federal states and three central
+                metrics shown together.
+            </p>
+            <p class="reminder">
+                [Reminder: specify the three metrics exactly.]
+            </p>
+
+            <h2>2.4 Population-adjusted gap analysis</h2>
+            <p>
+                To make projected supply-demand gaps comparable across federal
+                states of different sizes, an additional normalization step was
+                performed. First, state-level population data were also
+                projected for the years 2025 to 2040.
+            </p>
+            <p class="reminder">
+                [Reminder: insert the exact population forecasting model used
+                and explain why it was selected.]
+            </p>
+            <p>
+                The projected gap between bed demand and bed capacity was then
+                divided by the projected population of the respective state and
+                multiplied by 10,000. This yielded a standardized indicator of
+                shortage or surplus per 10,000 inhabitants, allowing direct
+                comparison between states.
+            </p>
+            <p class="reminder">
+                [Reminder: confirm that the scaling factor is 10,000 and add a
+                source showing that this population-based normalization is
+                standard in the relevant literature.]
+            </p>
+            <p>
+                To summarize these projected differences across all states and
+                years, the normalized values were visualized in a heatmap.
+            </p>
+
+            <h2>2.5 Scope and limitations of the forecast horizon</h2>
+            <p>
+                All forecast values cover the period from 2025 to 2040. However,
+                these projections should be interpreted primarily as a short- to
+                medium-term analytical tool rather than as precise long-term
+                predictions. Given the limited historical data available,
+                forecast uncertainty increases substantially over time. More
+                extensive time series would enable the use of more robust
+                datasets and potentially more advanced forecasting methods.
+                Therefore, the projections in this study are intended mainly to
+                illustrate possible future developments and to support a
+                conceptual assessment of regional risk patterns.
+            </p>
+        </section>
+
+        <!-- ===================== 3. RESULTS =========================== -->
+        <!-- Line charts page 1: 4 states -->
+        <section class="page pagebreak">
+            <h1>3. Results</h1>
+            <p style="font-size: 12pt; font-weight: bold; margin-bottom: 0.5em">
+                LINE CHARTS
+            </p>
+            <div class="line-chart-grid">
+                <iframe
+                    class="chart-frame half"
+                    title="Line chart — Baden-Württemberg"
+                    src="charts_supply_demand_gap/Baden-Württemberg.html"
+                ></iframe>
+                <iframe
+                    class="chart-frame half"
+                    title="Line chart — Bayern"
+                    src="charts_supply_demand_gap/Bayern.html"
+                ></iframe>
+                <iframe
+                    class="chart-frame half"
+                    title="Line chart — Berlin"
+                    src="charts_supply_demand_gap/Berlin.html"
+                ></iframe>
+                <iframe
+                    class="chart-frame half"
+                    title="Line chart — Brandenburg"
+                    src="charts_supply_demand_gap/Brandenburg.html"
+                ></iframe>
+            </div>
+        </section>
+
+        <!-- Line charts page 2: 4 states -->
+        <section class="page pagebreak">
+            <div class="line-chart-grid">
+                <iframe
+                    class="chart-frame half"
+                    title="Line chart — Bremen"
+                    src="charts_supply_demand_gap/Bremen.html"
+                ></iframe>
+                <iframe
+                    class="chart-frame half"
+                    title="Line chart — Hamburg"
+                    src="charts_supply_demand_gap/Hamburg.html"
+                ></iframe>
+                <iframe
+                    class="chart-frame half"
+                    title="Line chart — Hessen"
+                    src="charts_supply_demand_gap/Hessen.html"
+                ></iframe>
+                <iframe
+                    class="chart-frame half"
+                    title="Line chart — Mecklenburg-Vorpommern"
+                    src="charts_supply_demand_gap/Mecklenburg-Vorpommern.html"
+                ></iframe>
+            </div>
+        </section>
+
+        <!-- Line charts page 3: 4 states -->
+        <section class="page pagebreak">
+            <div class="line-chart-grid">
+                <iframe
+                    class="chart-frame half"
+                    title="Line chart — Niedersachsen"
+                    src="charts_supply_demand_gap/Niedersachsen.html"
+                ></iframe>
+                <iframe
+                    class="chart-frame half"
+                    title="Line chart — Nordrhein-Westfalen"
+                    src="charts_supply_demand_gap/Nordrhein-Westfalen.html"
+                ></iframe>
+                <iframe
+                    class="chart-frame half"
+                    title="Line chart — Rheinland-Pfalz"
+                    src="charts_supply_demand_gap/Rheinland-Pfalz.html"
+                ></iframe>
+                <iframe
+                    class="chart-frame half"
+                    title="Line chart — Saarland"
+                    src="charts_supply_demand_gap/Saarland.html"
+                ></iframe>
+            </div>
+        </section>
+
+        <!-- Line charts page 4: 4 states -->
+        <section class="page pagebreak">
+            <div class="line-chart-grid">
+                <iframe
+                    class="chart-frame half"
+                    title="Line chart — Sachsen"
+                    src="charts_supply_demand_gap/Sachsen.html"
+                ></iframe>
+                <iframe
+                    class="chart-frame half"
+                    title="Line chart — Sachsen-Anhalt"
+                    src="charts_supply_demand_gap/Sachsen-Anhalt.html"
+                ></iframe>
+                <iframe
+                    class="chart-frame half"
+                    title="Line chart — Schleswig-Holstein"
+                    src="charts_supply_demand_gap/Schleswig-Holstein.html"
+                ></iframe>
+                <iframe
+                    class="chart-frame half"
+                    title="Line chart — Thüringen"
+                    src="charts_supply_demand_gap/Thüringen.html"
+                ></iframe>
+            </div>
+        </section>
+
+        <section class="page pagebreak">
+            <p style="font-size: 12pt; font-weight: bold; margin-bottom: 0.5em">
+                HEATMAP
+            </p>
+            <iframe
+                class="chart-frame full"
+                title="Heatmap — Supply-Demand Gap"
+                style="max-width: 100%; width: 100%; height: 600px"
+                src="gap_heatmap.html"
+            ></iframe>
+        </section>
+
+        <!-- ============== 4. CONCLUSION AND FUTURE OUTLOOK ============ -->
+        <section class="page pagebreak">
+            <h1>4. Conclusion and Future Outlook</h1>
+            <p class="dotted-placeholder">
+                …………………………………………………………………………………………………………………………………………<br />
+                …………………………………………………………………………………………………………………………………………<br />
+                …………………………………………………………………………………………………………………………………………<br />
+                …………………………………………………………………………………………………………………………………………<br />
+                …………………………………………………………………………………………………………………………………………<br />
+                …………………………………………………………………………………………………………………………………………<br />
+                …………………………………………………………………………………………………………………………………………<br />
+                …………………………………………………………………………………………………………………………………………<br />
+                …………………………………………………………………………………………………………………………………………<br />
+                …………………………………………………………………………………………………………………………………………<br />
+                …………………………………………………………………………………………………………………………………………<br />
+                …………………………………………………………………………………………………………………………………………<br />
+                …………………………………………………………………………………………………………………………………………<br />
+                …………………………………………………………………………………………………………………………………………<br />
+                …………………………………………………………………………………………………………………………………………<br />
+                …………………………………………………………………………………………………………………………………………<br />
+                …………………………………………………………………………………………………………………………………………<br />
+                …………………………………………………………………………………………………………………………………………<br />
+                …………………………………………………………………………………………………………………………………………<br />
+                …………………………………………………………………………………………………………………………………………<br />
+                …………………………………………………………………………………………………………………………………………
+            </p>
+        </section>
+
+        <!-- ======= 5. REFLECTION ON THE PROGRAMMING PROCESS ========== -->
+        <section class="page pagebreak">
+            <h1>5. Reflection on the Programming Process</h1>
+            <p class="muted" style="font-style: italic; margin-bottom: 1em">
+                This section provides a technical overview of the project,
+                including its architecture, database schema, and key programming
+                decisions.
+            </p>
+
+            <h2>Run</h2>
+            <pre><code>uv run python -m src {year} {optional: path} {optional: pattern}</code></pre>
+
+            <h2>Test</h2>
+            <pre><code>uv run -m pytest</code></pre>
+
+            <h2>Architecture</h2>
+            <h3>Sources:</h3>
+            <ul>
+                <li>
+                    hospital data (data for 2018 and 2020 were corrupted on the
+                    website)
+                </li>
+                <li>postcode to bundesland (csv from ?)</li>
+                <li>
+                    population per bundesland since 2015 (csv wide table from ?)
+                </li>
+            </ul>
+
+            <h3>Ingestion:</h3>
+            <ul>
+                <li>
+                    <a href="../src/hospitalxml.py">hospitalxml.py</a> -&gt;
+                    parses xml to python dict
+                </li>
+                <li>
+                    <a href="../src/databasecontroller.py"
+                        >databasecontroller.py</a
+                    >
+                    -&gt; dict to pyarrow, then written to duckdb database.db
+                </li>
+                <li>
+                    <a href="../src/population.py">population.py</a> -&gt; melt
+                    csv with pandas then write frame to database.db
+                </li>
+                <li>
+                    <a href="../src/__main__.py">__main__.py</a> -&gt; parses
+                    arguments and orchestrates ingestion
+                </li>
+            </ul>
+
+            <p>
+                If the postcode moved again, the xml file where postcode was not
+                found gets written to ./failed for an autopsy, otherwise polite
+                error messages are the norm.
+            </p>
+
+            <h2>Duckdb Tables</h2>
+            <h3>dataset</h3>
+            <p>Primary dataset.</p>
+            <ul>
+                <li><strong>Datum</strong>: Date</li>
+                <li><strong>IK</strong>: Institution ID (varchar)</li>
+                <li><strong>Ort</strong>: City/Location (varchar)</li>
+                <li><strong>Postleitzahl</strong>: Post code (bigint)</li>
+                <li><strong>Anzahl_Betten</strong>: Number of beds (bigint)</li>
+                <li>
+                    <strong>Fallzahlen</strong>: A structured column containing:
+                    <ul>
+                        <li>Ambulante_Fallzahl: Outpatient cases (bigint)</li>
+                        <li>
+                            Teilstationaere_Fallzahl: Day patient cases (bigint)
+                        </li>
+                        <li>
+                            Vollstationaere_Fallzahl: Inpatient cases (bigint)
+                        </li>
+                    </ul>
+                </li>
+                <li><strong>Bundesland</strong>: State (varchar)</li>
+            </ul>
+
+            <h3>plz_ort_bundesland</h3>
+            <p>A lookup table mapping locations to states.</p>
+            <ul>
+                <li><strong>Ort</strong>: City/Location (varchar)</li>
+                <li><strong>Plz</strong>: Zip code (integer)</li>
+                <li><strong>Bundesland</strong>: State (varchar)</li>
+            </ul>
+
+            <h3>populations</h3>
+            <p>Demographic data per state and year.</p>
+            <ul>
+                <li><strong>Bundesland</strong>: State (varchar)</li>
+                <li><strong>year</strong>: Year (date)</li>
+                <li><strong>population</strong>: Total population (bigint)</li>
+            </ul>
+
+            <h2>Key Decisions</h2>
+            <ul>
+                <li>
+                    <strong>Duckdb</strong> -&gt; beginner friendly, portable,
+                    works nicely with pandas.
+                </li>
+                <li>
+                    <strong>Xmltodict</strong> -&gt; I forgot xml.etree existed
+                    until it was too late, xml.etree would have made life
+                    easier, as it is designed for navigating large xml
+                    structures, while xmltodict forced me to define paths in a
+                    rather cumbersome way without the option of "find x in
+                    tree".
+                </li>
+                <li>
+                    <strong>Pyarrow</strong> -&gt; keep parsing in memory (xml
+                    -&gt; dict -&gt; pyarrow -&gt; duckdb is very clean and
+                    performant).
+                </li>
+                <li>
+                    <strong>Pandas for ingestion and analysis</strong> -&gt;
+                    familiar, easier to learn (more resources) and well
+                    integrated with duckdb (I did look into polars though).
+                </li>
+                <li>
+                    <strong>Csv for analysis</strong> -&gt; it was easier to
+                    work with than writing to, and getting dataframes directly
+                    from the database, easier to read than json, parquet would
+                    have been overkill, and since they were generated by pandas,
+                    the shortcomings of cvs were less relevant.
+                </li>
+                <li>
+                    <strong>Plotly</strong> -&gt; convenient and pretty, I
+                    especially liked that their website demoed most figures
+                    (with code snippets!), I wish it wasn't so commercialised.
+                </li>
+                <li>
+                    <strong>Html</strong> -&gt; easy integration with plotly,
+                    and relatively straightforward pdf export.
+                </li>
+            </ul>
+        </section>
+
+        <!-- =========== BIBLIOGRAPHY AND DATA SOURCES ================== -->
+        <section class="page pagebreak">
+            <h1>6. Bibliography and Data Sources</h1>
+            <p>
+                Deloitte (2024) Future of Inpatient Care in Germany. Available
+                at:<br />
+                <a
+                    href="https://image.marketing.deloitte.de/lib/fe31117075640474771d75/m/1/20413454-bc5c-4b14-ad6c-1b464f9e366e.pdf"
+                    >https://image.marketing.deloitte.de/lib/fe31117075640474771d75/m/1/20413454-bc5c-4b14-ad6c-1b464f9e366e.pdf</a
+                ><br />
+                (Accessed: 30 April 2026)
+            </p>
+            <p>…</p>
+            <p>…</p>
+            <p>…</p>
+        </section>
     </body>
 </html>
