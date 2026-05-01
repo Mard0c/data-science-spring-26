@@ -20,21 +20,6 @@ def get_arguments() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def main():
-    arguments = get_arguments()
-    if arguments.year == "2020" or arguments.year == "2018":
-        print("dataset not available")
-        return
-
-    # TODO prevent duplicate insertions
-    add_one_year(arguments.path, int(arguments.year), arguments.pattern)
-    # get_range(2015, 2025, arguments.path, arguments.pattern)
-    # databasecontroller.show_db_contents("populations")
-    # population.create_population_table()
-    # population.check()
-    # report.visualize()
-
-
 def get_range(start, end, path, pattern):
     for year in range(start, end):
         print(f"YEAR: {year}")
@@ -42,6 +27,21 @@ def get_range(start, end, path, pattern):
             print(f"no data for: {year}")
             continue
         add_one_year(path, year, pattern)
+
+
+def main():
+    arguments = get_arguments()
+    if arguments.year == "2020" or arguments.year == "2018":
+        print("dataset not available")
+        return
+
+    # TODO prevent duplicate insertions
+    # add_one_year(arguments.path, int(arguments.year), arguments.pattern)
+    # get_range(2015, 2025, arguments.path, arguments.pattern)
+    databasecontroller.show_db_contents("populations")
+    # population.create_population_table()
+    # population.check()
+    # report.visualize()
 
 
 if __name__ == "__main__":

@@ -68,5 +68,5 @@ def visualize():
         df, x="year", y="population", title="Brandenburg population since 2015"
     )
     # fig = px.scatter(x=range(10), y=range(10))
-    fig.write_html("output/graph.html")
+    fig.write_html("output/graph.html", include_plotlyjs="cdn")
     print("yup...")

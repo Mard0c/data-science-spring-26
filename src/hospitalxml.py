@@ -44,7 +44,7 @@ def select_hospital_data(xml: str) -> dict:
         print("ERROR: could not find 'Datum'")
         result["Datum"] = None
 
-    # Krankenhaus/.../Postleitzahl & IK
+    # Krankenhaus/.../Postleitzahl, Ort, & IK
     try:
         if "Ein_Standort" in hospital_data["Krankenhaus"]:
             result["IK"] = hospital_data["Krankenhaus"]["Ein_Standort"][

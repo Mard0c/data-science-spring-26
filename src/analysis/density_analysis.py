@@ -1,11 +1,18 @@
-import pandas as pd
 import json
-import os 
+import os
 import urllib.request
+from pathlib import Path
+
+import pandas as pd
 import plotly.express as px
 
-beds = pd.read_csv("interim_csvs/anzahl_betten.csv")
-population = pd.read_csv("interim_csvs/cleaned_population_2015-2024.csv", sep=';')
+here = Path(__file__).resolve().parent
+ROOT = (here / "../..").resolve()
+path_anzhal_betten = ROOT / "interim_csvs/anzahl_betten.csv"
+path_population = ROOT / "cleaned_population_2015-2024.csv"
+# beds = pd.read_csv("interim_csvs/anzahl_betten.csv")
+beds = pd.read_csv(path_anzhal_betten)
+population = pd.read_csv(path_population, sep=";")
 
 # Remove rows where the state is missing
 beds = beds.dropna(subset=["state"])
@@ -20,9 +27,7 @@ state_col = population.columns[0]
 
 # Reshape using melt()
 population_long = population.melt(
-    id_vars=[state_col],
-    var_name="year",
-    value_name="population"
+    id_vars=[state_col], var_name="year", value_name="population"
 )
 
 # Rename the detected state column to "state"
@@ -39,7 +44,7 @@ df = df[~df["year"].isin([2018, 2020])]
 
 # Download Germany GeoJSON if not already present
 geojson_url = "https://raw.githubusercontent.com/isellsoap/deutschlandGeoJSON/main/2_bundeslaender/4_niedrig.geo.json"
-geojson_file = "geo_germany.json"
+geojson_file = ROOT / "geo_germany.json"
 
 if not os.path.exists(geojson_file):
     print("Downloading Germany GeoJSON...")
@@ -60,14 +65,18 @@ fig = px.choropleth(
     color="density",
     animation_frame="year",
     color_continuous_scale="Viridis",
-    title="Beds per Population Density – Germany (Animated)"
+    title="Beds per Population Density – Germany (Animated)",
 )
 
-fig.update_geos(fitbounds="locations", visible=False)
+fig.update_geos(
+    fitbounds="locations",
+    visible=False,
+    domain=dict(x=[0, 1], y=[0, 1]),
+)
 
 fig.update_layout(
-    margin={"r":0, "t":40, "l":0, "b":0},
-    coloraxis_colorbar=dict(title="Beds per Person")
+    margin={"r": 0, "t": 0, "l": 0, "b": 0},
+    coloraxis_colorbar=dict(title="Beds per Person"),
 )
 
-fig.write_html("output/beds_density_animation.html")
+fig.write_html(ROOT / "output/beds_density_animation.html", include_plotlyjs="cdn")

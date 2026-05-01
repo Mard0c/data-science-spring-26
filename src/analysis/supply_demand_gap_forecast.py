@@ -1,10 +1,14 @@
-import duckdb
-import pandas as pd
-import numpy as np
 from pathlib import Path
 
+import duckdb
+import numpy as np
+import pandas as pd
+
+here = Path(__file__).resolve().parent
+ROOT = (here / "../.." ).resolve()
+
 # export data from duckdb
-db = duckdb.connect("../database.db")  # adjust if needed
+db = duckdb.connect(str(ROOT / "database.db"))
 
 db.sql(f"""
 COPY (
@@ -18,7 +22,7 @@ COPY (
     SELECT year, state, SUM(voll) AS value
     FROM base
     GROUP BY year, state
-) TO '{"interim_csvs/vollstationaere_fallzahl.csv"}' (HEADER);
+) TO '{ROOT / "interim_csvs/vollstationaere_fallzahl.csv"}' (HEADER);
 """)
 
 db.sql(f"""
@@ -33,7 +37,7 @@ COPY (
     SELECT year, state, SUM(teil) AS value
     FROM base
     GROUP BY year, state
-) TO '{"interim_csvs/teilstationaere_fallzahl.csv"}' (HEADER);
+) TO '{ROOT / "interim_csvs/teilstationaere_fallzahl.csv"}' (HEADER);
 """)
 
 db.sql(f"""
@@ -48,14 +52,14 @@ COPY (
     SELECT year, state, SUM(betten) AS value
     FROM base
     GROUP BY year, state
-) TO '{"interim_csvs/anzahl_betten.csv"}' (HEADER);
+) TO '{ROOT / "interim_csvs/anzahl_betten.csv"}' (HEADER);
 """)
 
-voll = pd.read_csv("interim_csvs/vollstationaere_fallzahl.csv")
-teil = pd.read_csv("interim_csvs/teilstationaere_fallzahl.csv")
-betten = pd.read_csv("interim_csvs/anzahl_betten.csv")
+voll = pd.read_csv(ROOT / "interim_csvs/vollstationaere_fallzahl.csv")
+teil = pd.read_csv(ROOT / "interim_csvs/teilstationaere_fallzahl.csv")
+betten = pd.read_csv(ROOT / "interim_csvs/anzahl_betten.csv")
 
-# Merge 
+# Merge
 df = voll.merge(teil, on=["state", "year"], suffixes=("_voll", "_teil"))
 df = df.merge(betten, on=["state", "year"])
 df = df.rename(columns={"value": "supply_beds"})
@@ -72,13 +76,15 @@ df = df[df["supply"] > 200]
 
 
 # Long-term German healthcare drift trends:
-DRIFT_DEMAND = -0.002   # -0.2% per year
-DRIFT_SUPPLY = -0.01    # -1.0% per year
+DRIFT_DEMAND = -0.002  # -0.2% per year
+DRIFT_SUPPLY = -0.01  # -1.0% per year
+
 
 # smoothing and forecasting
 def smooth_series(y):
     """Rolling median smoothing to remove noise/spikes."""
     return pd.Series(y).rolling(window=3, center=True, min_periods=1).median().values
+
 
 def forecast_random_walk_with_drift(y_smooth, years, future_years, drift):
     """Forecast using last smoothed value and a drift-based random walk."""
@@ -93,6 +99,7 @@ def forecast_random_walk_with_drift(y_smooth, years, future_years, drift):
 
     return np.array(preds)
 
+
 future_years = list(range(df["year"].max() + 1, df["year"].max() + 16))
 forecast_rows = []
 
@@ -101,8 +108,7 @@ for state, group in df.groupby("state"):
 
     years = group["year"].values
 
-   
-   # smooth demand
+    # smooth demand
     y_demand = group["demand"].values
     y_demand_smooth = smooth_series(y_demand)
 
@@ -125,11 +131,14 @@ for state, group in df.groupby("state"):
         forecast_rows.append([state, fy, d_val, s_val])
 
 # make forecast dataframe
-forecast_df = pd.DataFrame(forecast_rows,
-                           columns=["state", "year", "forecast_demand", "forecast_supply"])
+forecast_df = pd.DataFrame(
+    forecast_rows, columns=["state", "year", "forecast_demand", "forecast_supply"]
+)
 
 # Compute gap
-forecast_df["forecast_gap"] = forecast_df["forecast_supply"] - forecast_df["forecast_demand"]
+forecast_df["forecast_gap"] = (
+    forecast_df["forecast_supply"] - forecast_df["forecast_demand"]
+)
 
-OUT = "interim_csvs/forecast_supply_demand_gap.csv"
+OUT = ROOT / "interim_csvs/forecast_supply_demand_gap.csv"
 forecast_df.to_csv(OUT, index=False)
