@@ -2,17 +2,12 @@ import argparse
 
 from src import databasecontroller, hospitalxml, population, report
 
-# uv run python -m src.main
-
 
 def add_one_year(path, year, pattern):
     year -= 1
 
-    # TODO prevent duplicate insertions
     hospital_data = hospitalxml.retrieve_target_data(f"{path}/xml_{year}", pattern)
     databasecontroller.insert_data(hospital_data)
-    databasecontroller.show_db_contents("dataset")
-    databasecontroller.debug_bundesland()
 
 
 def get_arguments() -> argparse.Namespace:
@@ -26,19 +21,21 @@ def get_arguments() -> argparse.Namespace:
 
 
 def main():
-    # arguments = get_arguments()
-    # if arguments.year == "2020" or arguments.year == "2018":
-    #     print("dataset not available")
-    #     return
-    # add_one_year(arguments.path, int(arguments.year), arguments.pattern)
-    # get_all(2015, 2025, arguments.path, arguments.pattern)
+    arguments = get_arguments()
+    if arguments.year == "2020" or arguments.year == "2018":
+        print("dataset not available")
+        return
+
+    # TODO prevent duplicate insertions
+    add_one_year(arguments.path, int(arguments.year), arguments.pattern)
+    # get_range(2015, 2025, arguments.path, arguments.pattern)
     # databasecontroller.show_db_contents("populations")
     # population.create_population_table()
     # population.check()
-    report.visualize()
+    # report.visualize()
 
 
-def get_all(start, end, path, pattern):
+def get_range(start, end, path, pattern):
     for year in range(start, end):
         print(f"YEAR: {year}")
         if year == 2020 or year == 2018:

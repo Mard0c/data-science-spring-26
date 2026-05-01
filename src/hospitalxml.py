@@ -35,8 +35,6 @@ def select_hospital_data(xml: str) -> dict:
     # collect target data in this dictionary
     result = {}
 
-    # ADD HOSPITAL IK + NAME
-
     # Einleitung/Datensatz/Datum
     try:
         result["Datum"] = datetime.strptime(
@@ -46,10 +44,7 @@ def select_hospital_data(xml: str) -> dict:
         print("ERROR: could not find 'Datum'")
         result["Datum"] = None
 
-    # Krankenhaus/.../Postleitzahl
-    # Can have multiple bloody locations...
-    # It's either Krankenhaus/Mehrere_Standorte
-    #          or Krankenhaus/Ein_Standorte
+    # Krankenhaus/.../Postleitzahl & IK
     try:
         if "Ein_Standort" in hospital_data["Krankenhaus"]:
             result["IK"] = hospital_data["Krankenhaus"]["Ein_Standort"][
@@ -95,7 +90,6 @@ def select_hospital_data(xml: str) -> dict:
                     "Postleitzahl"
                 ]
             )
-        # convert postcode to bundesland from csv
     except KeyError as error:
         print(f"ERROR: could not find Postleitzahl: {error}")
 
