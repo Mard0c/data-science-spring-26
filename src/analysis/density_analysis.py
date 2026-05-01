@@ -81,4 +81,4 @@ fig.update_layout(
     coloraxis_colorbar=dict(title="Beds per Person"),
 )
 
-fig.write_html(ROOT / "output/beds_density_animation.html", include_plotlyjs="cdn")
+fig.write_html(ROOT / "docs/beds_density_animation.html", include_plotlyjs="cdn")

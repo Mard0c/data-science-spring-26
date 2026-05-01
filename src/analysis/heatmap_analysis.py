@@ -30,4 +30,4 @@ fig.update_traces(
 
 fig.update_layout(xaxis_title="Year", yaxis_title="State")
 
-fig.write_html(ROOT / "output/gap_heatmap.html", include_plotlyjs="cdn")
+fig.write_html(ROOT / "docs/gap_heatmap.html", include_plotlyjs="cdn")

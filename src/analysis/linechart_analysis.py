@@ -10,7 +10,7 @@ ROOT = (here / "../..").resolve()
 df = pd.read_csv(ROOT / "interim_csvs/forecast_results_all_states.csv")
 
 # Make output folder
-os.makedirs(ROOT / "output/charts_supply_demand_gap", exist_ok=True)
+os.makedirs(ROOT / "docs/charts_supply_demand_gap", exist_ok=True)
 
 # Loop through all states
 for state in df["state"].unique():
@@ -55,5 +55,5 @@ for state in df["state"].unique():
     )
 
     # Save chart as HTML
-    filename = ROOT / f"output/charts_supply_demand_gap/{state.replace(' ', '_')}.html"
+    filename = ROOT / f"docs/charts_supply_demand_gap/{state.replace(' ', '_')}.html"
     fig.write_html(filename, include_plotlyjs="cdn")
