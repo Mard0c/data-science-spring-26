@@ -55,6 +55,7 @@ population: Total population (bigint)
 # Key Decisions:
 Duckdb -> beginner friendly, portable, works nicely with pandas.
 Xmltodict -> I forgot xml.etree existed until it was too late, xml.etree would have made life easier, as it is designed for navigating large xml structures, while xmltodict forced me to define paths in a rather cumbersome way without the option of "find x in tree". 
+
 Pyarrow -> keep parsing in memory (xml -> dict -> pyarrow -> duckdb is very clean and performant).
 
 Pandas for ingestion and analysis -> familiar, easier to learn (more resources) and well integrated with duckdb (I did look into polars though).
