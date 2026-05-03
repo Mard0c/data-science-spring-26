@@ -19,9 +19,6 @@ Ingestion:
 If the postcode moved again, the xml file where postcode was not found gets written to ./failed for an autopsy, otherwise polite error messages are the norm.
 
 
-Analysis:
-.....
-
 # Duckdb Tables
 ## dataset
 Primary dataset.
@@ -65,3 +62,10 @@ Csv for analysis -> it was easier to work with than writing to, and getting data
 Plotly -> convenient and pretty, I especially liked that their website demoed most figures (with code snippets!), I wish it wasn't so commercialised.
 
 Html -> easy integration with plotly, and relatively straightforward pdf export.
+
+
+# Analysis
+This analysis primarily relied on CSV datasets, which enabled a smooth and familiar workflow throughout the project. Leveraging prior experience with pandas, the data preparation and basic mathematical computations were implemented efficiently, allowing more focus on model experimentation and evaluation. A significant portion of the work involved forecasting, where multiple approaches had to be tested iteratively. Early attempts using models such as ARIMA proved unsuitable for both demand and supply data, largely due to inconsistencies and inefficiencies in the dataset. This required several adjustments and model changes, with linear smoothing eventually emerging as a workable solution after multiple iterations.
+In contrast, population forecasting yielded more reliable results. A logistic growth model, implemented through curve fitting with sufficient iterations, demonstrated strong performance and aligned well with expected trends. This highlighted the importance of selecting models that match the underlying data structure.
+Additionally, normalizing key metrics by population significantly improved comparability across data points. This step made patterns more interpretable and allowed for more meaningful insights.
+For visualization, Plotly was used throughout the analysis and performed reliably without any technical issues. Its flexibility enabled clear and interactive representations of the results, supporting both exploration and presentation of findings.
